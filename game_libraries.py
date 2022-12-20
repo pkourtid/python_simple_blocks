@@ -138,10 +138,10 @@ class clsSimpleGameEngine:
 		color = lstRGBValue
 
 
-		print("Rect : " + str(intX1) + ", " + str(intY1) + ", " + str(intX2) + ", " + str(intY2))
-		print("Scale: :" + str(self.decScaleGame))
-		print("Offsets: x: " + str(self.decOffsetWidth) + " y: " + str(self.decOffsetHeight))
-		print("Rect : " + str(intX1*self.decScaleGame) + ", " + str(intY1*self.decScaleGame) + ", " + str(intX2*self.decScaleGame) + ", " + str(intY2*self.decScaleGame))
+		# print("Rect : " + str(intX1) + ", " + str(intY1) + ", " + str(intX2) + ", " + str(intY2))
+		# print("Scale: :" + str(self.decScaleGame))
+		# print("Offsets: x: " + str(self.decOffsetWidth) + " y: " + str(self.decOffsetHeight))
+		# print("Rect : " + str(intX1*self.decScaleGame) + ", " + str(intY1*self.decScaleGame) + ", " + str(intX2*self.decScaleGame) + ", " + str(intY2*self.decScaleGame))
 
 		# Drawing Rectangle
 		pygame.draw.rect(self.screen, color, pygame.Rect(int((self.decOffsetWidth + (intX1*self.decScaleGame))),int((self.decOffsetHeight + (intY1*self.decScaleGame))), int( (intX2*self.decScaleGame)), int((intY2*self.decScaleGame))))

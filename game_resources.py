@@ -12,6 +12,9 @@ listResources = [
 {"type": "image", "name": "imgDown", "src": "resources/graphics/down.png"},
 {"type": "image", "name": "imgUp", "src": "resources/graphics/up.png"},
 
+{"type": "image", "name": "imgLogoPansa", "src": "resources/graphics/pansacreations.png"},
+{"type": "image", "name": "imgDesign", "src": "resources/graphics/design.png"},
+
 {"type": "image", "name": "imgBlock0", "src": "resources/graphics/block_0.png"},
 {"type": "image", "name": "imgBlock1", "src": "resources/graphics/block_1.png"},
 {"type": "image", "name": "imgBlock2", "src": "resources/graphics/block_2.png"},

@@ -56,8 +56,6 @@ for i in range(intBoardWidth):
 	for j in range(intBoardHeight):
 		arrGameBoard.append({"x":str(i),"y":str(j),"value":-1})
 
-print("The array value = " + str(arrGameBoard[3]["value"]))
-
 # ===========================================================================
 # Define Game Functions
 
@@ -103,6 +101,8 @@ def drawSimpleBlocksPlayArea():
 				intProjectedOffset =  intProjectedOffset - 1
 				break
 
+	objMyGame.drawRect(6, 8, 209, 447, (0,0,0))
+
 	# ==============================================================
 	# Scan the playing area and draw the appropriate
 	# graphic based on the block definition
@@ -127,7 +127,7 @@ def drawSimpleBlocksPlayArea():
 
 			else:
 				objShape = arrShapes[intCurrentBoardLocationValue]
-				objMyGame.drawImage(objShape["graphic"],(i*intBlockDimension) + intBoardXOffset, (j*intBlockDimension) + intBoardXOffset, intBlockDimension + 1, intBlockDimension + 1, 50)
+				objMyGame.drawImage(objShape["graphic"],(i*intBlockDimension) + intBoardXOffset, (j*intBlockDimension) + intBoardXOffset, intBlockDimension + 1, intBlockDimension + 1)
 
 	# ::::::::::::::::::::::::::::::::::::::::::::::::::::
 	# The game information
@@ -139,7 +139,7 @@ def drawSimpleBlocksPlayArea():
 		for i in range(len(objShape["initial_placement"])):
 			objMyGame.drawImage(objShape["graphic"], (objShape["initial_placement"][i]["x"] * intNextSize) + intNextOffsetX, (objShape["initial_placement"][i]["y"] * intNextSize) + intNextOffsetY, intNextSize, intNextSize)
 
-	objMyGame.drawImage("imgLogo", 7, 10, 206, 50);
+	objMyGame.drawImage("imgLogo", 9, 10, 202, 50);
 
 	strNumLines = '00000' + str(intNumLines)
 	strNumLines = strNumLines[-6:]
@@ -147,12 +147,15 @@ def drawSimpleBlocksPlayArea():
 	for i in range(6):
 		objMyGame.drawImage("img00" + strNumLines[i], 220+(i*10), 40, 10, 12)
 
+	objMyGame.drawImage("imgDesign",218,37,66,20,30)
+
 	strGameScore = '00000' + str(intGameScore)
 	strGameScore = strGameScore[-6:]
 
 	for i in range(6):
 		objMyGame.drawImage("img00" + strGameScore[i], 220+(i*10), 90, 10, 12)
 
+	objMyGame.drawImage("imgDesign",218,87,66,20,30)
 
 	intTilePercent = 0
 	if (intTotalTilesPlayed > 0):
@@ -162,15 +165,20 @@ def drawSimpleBlocksPlayArea():
 			objMyGame.drawImage(arrShapes[i]["graphic"],223 ,(i*7) + 155, intTilePercent, 4)
 
 
+	objMyGame.drawImage("imgDesign",218,150,66,56,30)
 	drawWord("LINES",220,25,12,12,12)
 	drawWord("SCORE",220,75,12,12,12)
 	drawWord("STATS",220,135,12,12,12)
 	drawWord("NEXT",220,220,12,12,12)
 
-	objMyGame.drawImage("imgDown",232,400,44,40)
-	objMyGame.drawImage("imgUp",232,330,44,40)
-	objMyGame.drawImage("imgLeft",212,365,40,40)
-	objMyGame.drawImage("imgRight",256,365,40,40)
+	# objMyGame.drawImage("imgDown",232,400,44,40)
+	# objMyGame.drawImage("imgUp",232,330,44,40)
+	# objMyGame.drawImage("imgLeft",212,365,40,40)
+	# objMyGame.drawImage("imgRight",256,365,40,40)
+
+	objMyGame.drawImage("imgLogoPansa",210,330,20,100)
+
+
 
 # =============================================================================
 # REVIEWED : Yes
@@ -501,31 +509,31 @@ def rotateShape():
 	arrNewPositions = []
 
 	if (objShape["rotates"] == True):
-		print("This tile can rotate")
+
 		for k in range(len(arrActiveTile)):
-			print("Rotating tile at x: " + str(arrActiveTile[k]["x"]) + " y: " + str(arrActiveTile[k]["y"]))
+			# print("Rotating tile at x: " + str(arrActiveTile[k]["x"]) + " y: " + str(arrActiveTile[k]["y"]))
 			center_x = intShapeOriginX + objShape["center_x"]
 			center_y = intShapeOriginY + objShape["center_y"]
 
-			print("Rotating around center x: " +  str(center_x) + " y: " + str(center_y))
+			# print("Rotating around center x: " +  str(center_x) + " y: " + str(center_y))
 			rotated_pos_x = int(round((math.cos(angle) * (arrActiveTile[k]["x"] - center_x)) - (math.sin(angle) * (arrActiveTile[k]["y"] - center_y)) + center_x))
 			rotated_pos_y = int(round((math.sin(angle) * (arrActiveTile[k]["x"] - center_x)) + (math.cos(angle) * (arrActiveTile[k]["y"] - center_y)) + center_y))
 
-			print("Should be placed at x: " +  str(rotated_pos_x) + " y: " + str(rotated_pos_y))
+			# print("Should be placed at x: " +  str(rotated_pos_x) + " y: " + str(rotated_pos_y))
 			if (rotated_pos_x < 0 or rotated_pos_x > (intBoardWidth - 1)):
-				print("this point out of bounds")
+				# print("this point out of bounds")
 				blnCanRotate = False
 				break
 
 			if (arrGameBoard[cotrans(rotated_pos_x,rotated_pos_y,intBoardWidth)]["value"] == -1 or arrGameBoard[cotrans(rotated_pos_x,rotated_pos_y,intBoardWidth)]["value"] == intSelectedTile):
 				arrNewPositions.append({"x":rotated_pos_x,"y":rotated_pos_y});
 			else:
-				print("this point collides")
+				# print("this point collides")
 				blnCanRotate = False
 				break
 
 		if (blnCanRotate == True):
-			print("We should be able to rotate all points")
+			# print("We should be able to rotate all points")
 			for k in range(len(arrActiveTile)):
 				arrGameBoard[cotrans(arrActiveTile[k]["x"],arrActiveTile[k]["y"],intBoardWidth)]["value"] = -1
 			for k in range(len(arrNewPositions)):
