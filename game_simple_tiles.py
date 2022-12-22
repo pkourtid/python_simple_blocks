@@ -20,7 +20,7 @@ objMyGame.loadResources(listResources)
 # =============================================================================
 # Game Variables
 
-intGameState = 0 # Indicates what state the game is in
+intGameState = -1 # Indicates what state the game is in
 intBoardWidth = 10 # The horizontal number of tiles
 intBoardHeight = 22 # The vertical number of tiles
 intBlockDimension = 20 # How large are the block parts (20x20)
@@ -45,6 +45,12 @@ intLockOffset = 100 # The offset to be used to keep track of the locked blocks
 intTotalTilesPlayed = 0
 intMoveUpperBound = 200
 
+# === Menu =========
+intSelectedMenuScreen = 0
+intSelectedItem = 0
+tmrMenuSpeed = clsSimpleTimer()
+
+
 intShapeOriginX = 0
 intShapeOriginY = 0
 
@@ -63,6 +69,7 @@ def drawWord(strWord, intStartPosX, intStartPosY, intCharSizeX, intCharSizeY, in
 	global objMyGame
 	for i in range(len(strWord)):
 		chrCharacter = strWord[i].upper()
+
 		objMyGame.drawImage("chr"+chrCharacter, intStartPosX +(i*intSpacing), intStartPosY, intCharSizeX, intCharSizeY)
 
 # =============================================================================
@@ -501,7 +508,7 @@ def rotateShape():
 	global intShapeOriginX
 	global intShapeOriginY
 
-	print("About to rotate")
+	# print("About to rotate")
 
 	blnCanRotate = True
 	objShape = arrShapes[intSelectedTile]
@@ -555,6 +562,41 @@ while blnRunning:
 	
 	objMyGame.drawRect(0, 0, 300, 460, (50,50,50))
 	match intGameState:
+		case -1: # GAME MENU
+			objMyGame.drawImage("imgLogo", 9, 10, 278, 60)
+
+			objMyGame.drawRect(12, 90, 270, 360, (20,20,20))
+			objMyGame.drawRect(30, 108, 236, 320, (0,0,0))
+
+			if (intSelectedMenuScreen == 0):
+				drawWord("NEW GAME",70,130,18,18,18)
+				drawWord("LEADERS",70,180,18,18,18)
+				drawWord("QUIT",70,380,18,18,18)
+
+				# Check the user input and take action
+				if (objMyGame.checkKeyStatus("DOWN") and tmrMenuSpeed.checkTimePassed(100)):
+					intSelectedItem = (intSelectedItem + 1)
+					if (intSelectedItem > 2):
+						intSelectedItem = 0
+					tmrMenuSpeed.resetTimer()
+
+				if (intSelectedItem == 0):
+					objMyGame.drawImage("imgDesign",44,120,210,40,30)
+				elif (intSelectedItem == 1):
+					objMyGame.drawImage("imgDesign",44,170,210,40,30)
+				elif (intSelectedItem == 2):
+					objMyGame.drawImage("imgDesign",44,370,210,40,30)
+
+				if (objMyGame.checkKeyStatus("RETURN") and tmrMenuSpeed.checkTimePassed(100)):
+					if (intSelectedItem == 0):
+						intGameState = 0
+					elif (intSelectedItem == 1):
+						break
+					elif (intSelectedItem == 2):
+						break
+
+			objMyGame.drawImage("imgLogoPansa",270,300,20,100)
+
 		case 0: # READY TO PLAY - PRESS KEY OR TOUCH /////////////////////////
 
 			# Draw the main SimpleBlocks play area
@@ -616,6 +658,7 @@ while blnRunning:
 	blnRunning = objMyGame.processEvents()
 	
 	objMyGame.displayUpdate()
+	pygame.time.wait(10)
 	
 #for lstElement in arrGameBoard:
 #	print(lstElement["x"] + ", " + lstElement["y"])

@@ -89,27 +89,29 @@ class clsSimpleGameEngine:
 	# Create a function to draw an image on the canvas honoring the scale
 
 	def drawImage(self, strImgObject, intOffsetX, intOffsetY, intWidth, intHeight, alpha = 255, intRotate = 0):
-	
-		imgObjectResized = pygame.transform.scale(self.dicResources[strImgObject], (intWidth*self.decScaleGame,intHeight*self.decScaleGame))
-		
-		intOffsetWidth = 0
-		intOffsetHeight = 0
 
-		if (intRotate > 0):
-			intImgWidth, intImgHeight = imgObjectResized.get_size()
-			imgObjectResized = pygame.transform.rotate(imgObjectResized, intRotate)
-			intImgWidthAfter, intImgHeightAfter = imgObjectResized.get_size()
-			intOffsetWidth = (intImgWidth - intImgWidthAfter) / 2
-			intOffsetHeight = (intImgHeight - intImgHeightAfter) / 2
-			
+		if (strImgObject in self.dicResources):
 
-		if (alpha != 255):
-			if (alpha > 255 or alpha < 0):
-				alpha = 255
-			else:
-				imgObjectResized.set_alpha(alpha)
+			imgObjectResized = pygame.transform.scale(self.dicResources[strImgObject], (intWidth*self.decScaleGame,intHeight*self.decScaleGame))
 
-		self.screen.blit(imgObjectResized, (self.decOffsetWidth + (intOffsetX*self.decScaleGame)+intOffsetWidth, self.decOffsetHeight + (intOffsetY*self.decScaleGame) + intOffsetHeight))
+			intOffsetWidth = 0
+			intOffsetHeight = 0
+
+			if (intRotate > 0):
+				intImgWidth, intImgHeight = imgObjectResized.get_size()
+				imgObjectResized = pygame.transform.rotate(imgObjectResized, intRotate)
+				intImgWidthAfter, intImgHeightAfter = imgObjectResized.get_size()
+				intOffsetWidth = (intImgWidth - intImgWidthAfter) / 2
+				intOffsetHeight = (intImgHeight - intImgHeightAfter) / 2
+
+
+			if (alpha != 255):
+				if (alpha > 255 or alpha < 0):
+					alpha = 255
+				else:
+					imgObjectResized.set_alpha(alpha)
+
+			self.screen.blit(imgObjectResized, (self.decOffsetWidth + (intOffsetX*self.decScaleGame)+intOffsetWidth, self.decOffsetHeight + (intOffsetY*self.decScaleGame) + intOffsetHeight))
 
 
 	# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -162,6 +164,8 @@ class clsSimpleGameEngine:
 					self.dicKeys['RIGHT'] = True
 				if (event.key == pygame.K_LEFT):
 					self.dicKeys['LEFT'] = True
+				if (event.key == pygame.K_RETURN):
+					self.dicKeys['RETURN'] = True
 			elif event.type == pygame.KEYUP:
 				if (event.key == pygame.K_SPACE):
 					self.dicKeys['SPACE'] = False
@@ -173,6 +177,8 @@ class clsSimpleGameEngine:
 					self.dicKeys['RIGHT'] = False
 				if (event.key == pygame.K_LEFT):
 					self.dicKeys['LEFT'] = False
+				if (event.key == pygame.K_RETURN):
+					self.dicKeys['RETURN'] = False
 			elif event.type == VIDEORESIZE:
 				self.resizeDisplay()
 		return blnContinue
