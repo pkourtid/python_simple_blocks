@@ -45,6 +45,10 @@ intLockOffset = 100 # The offset to be used to keep track of the locked blocks
 intTotalTilesPlayed = 0
 intMoveUpperBound = 200
 
+tmrKeyDelayUP = clsSimpleTimer()
+tmrKeyDelayLEFT = clsSimpleTimer()
+tmrKeyDelayRIGHT = clsSimpleTimer()
+
 # === Menu =========
 intSelectedMenuScreen = 0
 intSelectedItem = 0
@@ -75,7 +79,7 @@ def drawWord(strWord, intStartPosX, intStartPosY, intCharSizeX, intCharSizeY, in
 # =============================================================================
 # REVIEWED : Yes
 #
-def drawSimpleBlocksPlayArea():
+def drawPlayArea():
 	# ==============================================================
 	# Projected tile logic
 	# Project each active tile down to project their locked state
@@ -208,10 +212,9 @@ def resetGame():
 
 	# SETUP THE NEXT TILE
 	intNextTile = randint(0, len(arrShapes)-1)
-	print(intNextTile)
 
 	# RESET THE LEVEL
-	intLevel = 0;
+	intLevel = 0
 
 	# RESET DATA ON GAME BOARD
 	for i in range(intBoardWidth):
@@ -366,87 +369,12 @@ def processFall():
 
 				# Move all tiles from our current position down
 				for k in reversed(range(1,j+1)):
-					print(str(k),end="")
 					for l in range(intBoardWidth):
 						arrGameBoard[cotrans(l,k,intBoardWidth)]["value"] = arrGameBoard[cotrans(l,k-1,intBoardWidth)]["value"]
 						arrGameBoard[cotrans(l,k-1,intBoardWidth)]["value"] = -1
 
 		intGameScore = intGameScore + (4 * intLinesInRow)
 		selectTile()
-
-	setActiveTilePositions()
-
-# =============================================================================
-# REVIEWED : Yes
-#
-def processRight():
-
-	global intBoardWidth
-	global intBoardHeight
-	global arrGameBoard
-	global intShapeOriginX
-	global arrActiveTile
-
-	# Check all active tiles and see if anything in blocking them
-	blnLegalMove = True
-
-	for i in arrActiveTile:
-		intPosX = i["x"]
-		intPosY = i["y"]
-		intPosMoveToX = intPosX + 1
-		if (intPosMoveToX < intBoardWidth):
-			intTileAtDestination = arrGameBoard[cotrans(intPosMoveToX,intPosY,intBoardWidth)]["value"]
-			if (intTileAtDestination > 10):
-				blnLegalMove = False
-				break
-		else:
-			blnLegalMove = False
-			break
-
-	if (blnLegalMove == True):
-		for i in reversed(arrActiveTile):
-			intGamePos = cotrans(i["x"],i["y"],intBoardWidth)
-			intGamePosTo = cotrans(i["x"]+1,i["y"],intBoardWidth)
-			arrGameBoard[intGamePosTo]["value"] = arrGameBoard[intGamePos]["value"]
-			arrGameBoard[intGamePos]["value"] = -1
-		intShapeOriginX = intShapeOriginX + 1
-
-	setActiveTilePositions()
-
-# =============================================================================
-# REVIEWED : Yes
-#
-def processLeft():
-
-	global intBoardWidth
-	global intBoardHeight
-	global arrGameBoard
-	global intShapeOriginX
-	global arrActiveTile
-
-	# Check all active tiles and see if anything in blocking them
-	blnLegalMove = True
-
-	for i in arrActiveTile:
-		intPosX = i["x"]
-		intPosY = i["y"]
-		intPosMoveToX = intPosX - 1
-		if (intPosMoveToX > -1):
-			intTileAtDestination = arrGameBoard[cotrans(intPosMoveToX,intPosY,intBoardWidth)]["value"]
-			if (intTileAtDestination > 10):
-				blnLegalMove = False
-				break
-		else:
-			blnLegalMove = False
-			break
-
-	if (blnLegalMove == True):
-		for i in arrActiveTile:
-			intGamePos = cotrans(i["x"],i["y"],intBoardWidth)
-			intGamePosTo = cotrans(i["x"]-1,i["y"],intBoardWidth)
-			arrGameBoard[intGamePosTo]["value"] = arrGameBoard[intGamePos]["value"]
-			arrGameBoard[intGamePos]["value"] = -1
-		intShapeOriginX = intShapeOriginX - 1
 
 	setActiveTilePositions()
 
@@ -458,15 +386,14 @@ def processLateral(intMoveType):
 	global intShapeOriginX
 	global arrActiveTile
 
-	intCheckBoundsLower = -1
-	intCheckBoundsUpper = intBoardWidth
+	intPosXMove = 0
+	iterRange = iter(arrActiveTile)
 
-	intOffsetUpdate = 0
-
-	if (intMoveType == 1):
-		intOffsetUpdate = -1
-	elif (intMoveType == 2):
-		intOffsetUpdate = 1
+	if (intMoveType == 1): # LEFT
+		intPosXMove = -1
+	elif (intMoveType == 2): # RIGHT
+		intPosXMove = 1
+		iterRange = iter(reversed(arrActiveTile))
 
 	# Check all active tiles and see if anything in blocking them
 	blnLegalMove = True
@@ -474,8 +401,8 @@ def processLateral(intMoveType):
 	for i in arrActiveTile:
 		intPosX = i["x"]
 		intPosY = i["y"]
-		intPosMoveToX = intPosX + intOffsetUpdate
-		if (intPosMoveToX > intCheckBoundsLower and intPosMoveToX < intCheckBoundsLower):
+		intPosMoveToX = intPosX + intPosXMove
+		if (intPosMoveToX > -1 and intPosMoveToX < intBoardWidth):
 			intTileAtDestination = arrGameBoard[cotrans(intPosMoveToX,intPosY,intBoardWidth)]["value"]
 			if (intTileAtDestination > 10):
 				blnLegalMove = False
@@ -485,12 +412,12 @@ def processLateral(intMoveType):
 			break
 
 	if (blnLegalMove == True):
-		for i in arrActiveTile:
+		for i in iterRange:
 			intGamePos = cotrans(i["x"],i["y"],intBoardWidth)
-			intGamePosTo = cotrans(i["x"]-1,i["y"],intBoardWidth)
+			intGamePosTo = cotrans(i["x"] + intPosXMove,i["y"],intBoardWidth)
 			arrGameBoard[intGamePosTo]["value"] = arrGameBoard[intGamePos]["value"]
 			arrGameBoard[intGamePos]["value"] = -1
-		intShapeOriginX = intShapeOriginX + intOffsetUpdate
+		intShapeOriginX = intShapeOriginX + intPosXMove
 
 	setActiveTilePositions()
 
@@ -508,8 +435,6 @@ def rotateShape():
 	global intShapeOriginX
 	global intShapeOriginY
 
-	# print("About to rotate")
-
 	blnCanRotate = True
 	objShape = arrShapes[intSelectedTile]
 	angle = (math.pi * 90) / 180
@@ -518,29 +443,23 @@ def rotateShape():
 	if (objShape["rotates"] == True):
 
 		for k in range(len(arrActiveTile)):
-			# print("Rotating tile at x: " + str(arrActiveTile[k]["x"]) + " y: " + str(arrActiveTile[k]["y"]))
 			center_x = intShapeOriginX + objShape["center_x"]
 			center_y = intShapeOriginY + objShape["center_y"]
 
-			# print("Rotating around center x: " +  str(center_x) + " y: " + str(center_y))
 			rotated_pos_x = int(round((math.cos(angle) * (arrActiveTile[k]["x"] - center_x)) - (math.sin(angle) * (arrActiveTile[k]["y"] - center_y)) + center_x))
 			rotated_pos_y = int(round((math.sin(angle) * (arrActiveTile[k]["x"] - center_x)) + (math.cos(angle) * (arrActiveTile[k]["y"] - center_y)) + center_y))
 
-			# print("Should be placed at x: " +  str(rotated_pos_x) + " y: " + str(rotated_pos_y))
 			if (rotated_pos_x < 0 or rotated_pos_x > (intBoardWidth - 1)):
-				# print("this point out of bounds")
 				blnCanRotate = False
 				break
 
 			if (arrGameBoard[cotrans(rotated_pos_x,rotated_pos_y,intBoardWidth)]["value"] == -1 or arrGameBoard[cotrans(rotated_pos_x,rotated_pos_y,intBoardWidth)]["value"] == intSelectedTile):
 				arrNewPositions.append({"x":rotated_pos_x,"y":rotated_pos_y});
 			else:
-				# print("this point collides")
 				blnCanRotate = False
 				break
 
 		if (blnCanRotate == True):
-			# print("We should be able to rotate all points")
 			for k in range(len(arrActiveTile)):
 				arrGameBoard[cotrans(arrActiveTile[k]["x"],arrActiveTile[k]["y"],intBoardWidth)]["value"] = -1
 			for k in range(len(arrNewPositions)):
@@ -600,7 +519,7 @@ while blnRunning:
 		case 0: # READY TO PLAY - PRESS KEY OR TOUCH /////////////////////////
 
 			# Draw the main SimpleBlocks play area
-			drawSimpleBlocksPlayArea();
+			drawPlayArea();
 
 			# Logic to show/hide the start game message
 			if ((blnShowMessage and tmrPressSpace.checkTimePassed(800)) or (not blnShowMessage and tmrPressSpace.checkTimePassed(300))):
@@ -633,19 +552,21 @@ while blnRunning:
 				tmrForcedFall.resetTimer()
 
 			if (objMyGame.checkKeyStatus("LEFT")):
-				if (tmrPressSpace.checkTimePassed(100)):
-					tmrPressSpace.resetTimer()
-					processLeft()
+				if (tmrKeyDelayLEFT.checkTimePassed(100)):
+					tmrKeyDelayLEFT.resetTimer()
+					processLateral(1)
+
 
 			if (objMyGame.checkKeyStatus("RIGHT")):
-				if (tmrPressSpace.checkTimePassed(100)):
-					tmrPressSpace.resetTimer()
-					processRight();
+				if (tmrKeyDelayRIGHT.checkTimePassed(100)):
+					tmrKeyDelayRIGHT.resetTimer()
+					processLateral(2)
 
 			if (objMyGame.checkKeyStatus("UP")):
-				if (tmrPressSpace.checkTimePassed(100)):
-					tmrPressSpace.resetTimer()
+				if (tmrKeyDelayUP.checkTimePassed(100)):
+					tmrKeyDelayUP.resetTimer()
 					rotateTile()
+
 
 			'''
 			#if (objMyGameEngine.checkKeyStatus("KeyE") && objMyGameEngine.checkKeyStateChanged("KeyE"))
@@ -653,12 +574,9 @@ while blnRunning:
 			'''
 
 			# Draw the playing area
-			drawSimpleBlocksPlayArea()
+			drawPlayArea()
 
 	blnRunning = objMyGame.processEvents()
 	
 	objMyGame.displayUpdate()
 	pygame.time.wait(10)
-	
-#for lstElement in arrGameBoard:
-#	print(lstElement["x"] + ", " + lstElement["y"])
