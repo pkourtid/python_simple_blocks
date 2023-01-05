@@ -3,18 +3,26 @@
 # =============================================================================
 # Import Simple Game Engine Libraries
 from game_libraries import *
+
+# Import game resources and shapes
+# You can use the shapes module to modify and/or add additonal shapes to
+# the game
 from game_resources import *
 from game_shapes import *
 
+# We need some standard modules for the game
 from random import *
-
 import math
 import time
 
+# Some needed functions
 usleep = lambda x: time.sleep(x/1000000.0)
 cotrans = lambda x,y,w: x + (w*y)
 
+# Start the Simple Game Engine
 objMyGame = clsSimpleGameEngine("Simple Tiles", 300, 460, 300, 460)
+
+# Load the resources using the object found in game_resources.py
 objMyGame.loadResources(listResources)
 
 # =============================================================================
@@ -23,14 +31,13 @@ objMyGame.loadResources(listResources)
 intGameState = -1 # Indicates what state the game is in
 intBoardWidth = 10 # The horizontal number of tiles
 intBoardHeight = 22 # The vertical number of tiles
-intBlockDimension = 20 # How large are the block parts (20x20)
-intBoardXOffset = 10;
+intBlockDimensionX = round(205/intBoardWidth,0) # How large are the block parts (20x20)
+intBlockDimensionY = round(440/intBoardHeight,0) # How large are the block parts (20x20)
+intBoardXOffset = len(arrShapes)
 blnShowMessage = True # Show/hide start game message
-tmrPressSpace = clsSimpleTimer() # Timer for show/hide effect
 intNumLines = 0 # The number of lines the player has
 intGameScore = 0 # The current score for the player
 arrTileStats = [] # The array that holds stats about each tile
-tmrTileDrop = clsSimpleTimer() # Timer that control the fall rate
 intNextTile = 1 # Holds the next tile to fall
 intNextOffsetX = 220 # Where to place the next tile blocks
 intNextOffsetY = 243 # Where to place the next tile blocks
@@ -40,20 +47,24 @@ intFallingTimer = 500 # How quickly do the tiles fall
 arrGameBoard = [] # Holds block information
 arrBoardHeight = []
 arrActiveTile = []
-tmrForcedFall = clsSimpleTimer() # Timer to control how quickly we can force a fall 
 intLockOffset = 100 # The offset to be used to keep track of the locked blocks
 intTotalTilesPlayed = 0
 intMoveUpperBound = 200
+intNumberOfShapes = len(arrShapes)
 
+# Create simple timers to control the game timing
+# At some point the game clock will be part of the engine
+tmrPressSpace = clsSimpleTimer() # Timer for show/hide effect
+tmrTileDrop = clsSimpleTimer() # Timer that control the fall rate
+tmrForcedFall = clsSimpleTimer() # Timer to control how quickly we can force a fall
 tmrKeyDelayUP = clsSimpleTimer()
 tmrKeyDelayLEFT = clsSimpleTimer()
 tmrKeyDelayRIGHT = clsSimpleTimer()
+tmrMenuSpeed = clsSimpleTimer()
 
 # === Menu =========
 intSelectedMenuScreen = 0
 intSelectedItem = 0
-tmrMenuSpeed = clsSimpleTimer()
-
 
 intShapeOriginX = 0
 intShapeOriginY = 0
@@ -92,7 +103,8 @@ def drawPlayArea():
 	global arrGameBoard
 	global intLockOffset
 	global intBoardWidth
-	global intBlockDimension
+	global intBlockDimensionX
+	global intBlockDimensionY
 	global arrShapes
 	global intNextTile
 
@@ -112,7 +124,7 @@ def drawPlayArea():
 				intProjectedOffset =  intProjectedOffset - 1
 				break
 
-	objMyGame.drawRect(6, 8, 209, 447, (0,0,0))
+	objMyGame.drawRect(6, 6, 203, 443, (0,0,0))
 
 	# ==============================================================
 	# Scan the playing area and draw the appropriate
@@ -134,11 +146,11 @@ def drawPlayArea():
 				for k in range(len(arrActiveTile)):
 					if (i == arrActiveTile[k]["x"] and j == (arrActiveTile[k]["y"] + intProjectedOffset)):
 						strTileName = "imgBlockEmptyProjection"
-				objMyGame.drawImage(strTileName,(i*intBlockDimension) + intBoardXOffset, (j*intBlockDimension) + intBoardXOffset, intBlockDimension + 1, intBlockDimension + 1)
+				objMyGame.drawImage(strTileName,(i*intBlockDimensionX) + intBoardXOffset, (j*intBlockDimensionY) + intBoardXOffset, intBlockDimensionX + 1, intBlockDimensionY + 1)
 
 			else:
 				objShape = arrShapes[intCurrentBoardLocationValue]
-				objMyGame.drawImage(objShape["graphic"],(i*intBlockDimension) + intBoardXOffset, (j*intBlockDimension) + intBoardXOffset, intBlockDimension + 1, intBlockDimension + 1)
+				objMyGame.drawImage(objShape["graphic"],(i*intBlockDimensionX) + intBoardXOffset, (j*intBlockDimensionY) + intBoardXOffset, intBlockDimensionX + 1, intBlockDimensionY + 1)
 
 	# ::::::::::::::::::::::::::::::::::::::::::::::::::::
 	# The game information
@@ -211,7 +223,7 @@ def resetGame():
 	global intNextTile
 
 	# SETUP THE NEXT TILE
-	intNextTile = randint(0, len(arrShapes)-1)
+	intNextTile = randint(0, intNumberOfShapes-1)
 
 	# RESET THE LEVEL
 	intLevel = 0
@@ -249,7 +261,7 @@ def setActiveTilePositions():
 
 	for i in range(intBoardWidth):
 		for j in range(intBoardHeight):
-			if (arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] > -1 and arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] < 10):
+			if (arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] > -1 and arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] < intNumberOfShapes):
 				arrActiveTile.append({"x":i,"y":j})
 
 # =============================================================================
@@ -316,7 +328,7 @@ def processFall():
 
 	for i in range(intBoardWidth):
 		for j in range(intBoardHeight):
-			if (arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] > -1 and arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] < 10):
+			if (arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] > -1 and arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] < intNumberOfShapes):
 				if (j > intBoardHeight - 2):
 					blnTileStopped = True;
 				elif (arrGameBoard[cotrans(i,j+1,intBoardWidth)]["value"] > 9):
@@ -326,7 +338,7 @@ def processFall():
 	if (blnTileStopped == False):
 		for i in range(intBoardWidth):
 			for j in reversed(range(intBoardHeight)):
-				if (arrGameBoard[cotrans(i,j-1,intBoardWidth)]["value"] > -1 and arrGameBoard[cotrans(i,j-1,intBoardWidth)]["value"] < 10):
+				if (arrGameBoard[cotrans(i,j-1,intBoardWidth)]["value"] > -1 and arrGameBoard[cotrans(i,j-1,intBoardWidth)]["value"] < intNumberOfShapes):
 					arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] = arrGameBoard[cotrans(i,j-1,intBoardWidth)]["value"] + intMoveUpperBound
 					arrGameBoard[cotrans(i,j-1,intBoardWidth)]["value"] = -1
 		intShapeOriginY = intShapeOriginY + 1
@@ -341,7 +353,7 @@ def processFall():
 		# Lock the tiles by adding an offset value
 		for i in range(intBoardWidth):
 			for j in range(intBoardHeight):
-				if (arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] > -1 and arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] < 10):
+				if (arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] > -1 and arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] < intNumberOfShapes):
 					# alert("FREEZING")
 					arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] = arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] + intLockOffset
 
@@ -404,7 +416,7 @@ def processLateral(intMoveType):
 		intPosMoveToX = intPosX + intPosXMove
 		if (intPosMoveToX > -1 and intPosMoveToX < intBoardWidth):
 			intTileAtDestination = arrGameBoard[cotrans(intPosMoveToX,intPosY,intBoardWidth)]["value"]
-			if (intTileAtDestination > 10):
+			if (intTileAtDestination > intNumberOfShapes):
 				blnLegalMove = False
 				break
 		else:
@@ -497,6 +509,11 @@ while blnRunning:
 					intSelectedItem = (intSelectedItem + 1)
 					if (intSelectedItem > 2):
 						intSelectedItem = 0
+					tmrMenuSpeed.resetTimer()
+				elif (objMyGame.checkKeyStatus("UP") and tmrMenuSpeed.checkTimePassed(100)):
+					intSelectedItem = (intSelectedItem - 1)
+					if (intSelectedItem < 0):
+						intSelectedItem = 2
 					tmrMenuSpeed.resetTimer()
 
 				if (intSelectedItem == 0):

@@ -44,7 +44,8 @@ class clsSimpleGameEngine:
 		self.colors["transparent"] = (0, 255, 255)
 		
 		# Container to keep resources
-		self.dicResources = {}
+		self.dicImages = {}
+		self.dicSounds = {}
 
 		# Container for key codes
 		self.dicKeys = {}
@@ -56,11 +57,18 @@ class clsSimpleGameEngine:
 		pygame.quit()
 		
 	def loadResources(self,listResources):
-	    print("Loading Resources: ",end="")
-	    for resources in listResources:
-	        if (resources["type"] == "image"):
-	            self.dicResources[resources["name"]] = pygame.image.load(resources["src"])
-	    print("Done!")
+		print("Loading Resources: ",end="")
+		intCountImages = 0
+		intCountSounds = 0
+
+		for resources in listResources:
+			if (resources["type"] == "image"):
+				intCountImages = intCountImages + 1
+				self.dicImages[resources["name"]] = pygame.image.load(resources["src"])
+			elif (resources["type"] == "sound"):
+				intCountSounds = intCountSounds + 1
+				self.dicSounds[resources["name"]] = pygame.mixer.Sound(resources["src"])
+		print("images (" + str(intCountImages) + ")" + ", sounds(" + str(intCountSounds) + ")")
 	# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	# When the screen is re-sized this function is triggered
 	# We calculate some variables to help up scale and center the whole game 
@@ -90,9 +98,9 @@ class clsSimpleGameEngine:
 
 	def drawImage(self, strImgObject, intOffsetX, intOffsetY, intWidth, intHeight, alpha = 255, intRotate = 0):
 
-		if (strImgObject in self.dicResources):
+		if (strImgObject in self.dicImages):
 
-			imgObjectResized = pygame.transform.scale(self.dicResources[strImgObject], (intWidth*self.decScaleGame,intHeight*self.decScaleGame))
+			imgObjectResized = pygame.transform.scale(self.dicImages[strImgObject], (intWidth*self.decScaleGame,intHeight*self.decScaleGame))
 
 			intOffsetWidth = 0
 			intOffsetHeight = 0
