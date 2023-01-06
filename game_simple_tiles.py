@@ -63,7 +63,6 @@ tmrKeyDelayRIGHT = clsSimpleTimer()
 tmrMenuSpeed = clsSimpleTimer()
 
 # === Menu =========
-intSelectedMenuScreen = 0
 intSelectedItem = 0
 
 intShapeOriginX = 0
@@ -146,11 +145,11 @@ def drawPlayArea():
 				for k in range(len(arrActiveTile)):
 					if (i == arrActiveTile[k]["x"] and j == (arrActiveTile[k]["y"] + intProjectedOffset)):
 						strTileName = "imgBlockEmptyProjection"
-				objMyGame.drawImage(strTileName,(i*intBlockDimensionX) + intBoardXOffset, (j*intBlockDimensionY) + intBoardXOffset, intBlockDimensionX + 1, intBlockDimensionY + 1)
+				objMyGame.drawImage(strTileName,(i*intBlockDimensionX) + intBoardXOffset, (j*intBlockDimensionY) + intBoardXOffset, intBlockDimensionX, intBlockDimensionY)
 
 			else:
 				objShape = arrShapes[intCurrentBoardLocationValue]
-				objMyGame.drawImage(objShape["graphic"],(i*intBlockDimensionX) + intBoardXOffset, (j*intBlockDimensionY) + intBoardXOffset, intBlockDimensionX + 1, intBlockDimensionY + 1)
+				objMyGame.drawImage(objShape["graphic"],(i*intBlockDimensionX) + intBoardXOffset, (j*intBlockDimensionY) + intBoardXOffset, intBlockDimensionX, intBlockDimensionY)
 
 	# ::::::::::::::::::::::::::::::::::::::::::::::::::::
 	# The game information
@@ -322,6 +321,7 @@ def processFall():
 	global intGameScore
 	global intLockOffset
 	global intNumLines
+	global intFallingTimer
 
 	# Check if any active tile cannot move down
 	blnTileStopped = False;
@@ -372,6 +372,8 @@ def processFall():
 
 			# We found a line so we need to remove it
 			if (blnFoundLine == True):
+				
+				intFallingTimer = intFallingTimer - 20
 
 				# Keep track of the number of lines
 				intNumLines = intNumLines + 1
@@ -488,50 +490,71 @@ objMyGame.resizeDisplay()
 blnRunning = True
 		
 while blnRunning:
+
 	# Clear the Screen
 	objMyGame.displayClear()
 	
+	# Draw the background
 	objMyGame.drawRect(0, 0, 300, 460, (50,50,50))
+
+	# Check what game state we are in and run the corresponding code
+
 	match intGameState:
-		case -1: # GAME MENU
+
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		# Game main menu logic
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+		case -1:
+
+			# Draw the game title
 			objMyGame.drawImage("imgLogo", 9, 10, 278, 60)
 
+			# Draw a couple of backgrounds
 			objMyGame.drawRect(12, 90, 270, 360, (20,20,20))
 			objMyGame.drawRect(30, 108, 236, 320, (0,0,0))
 
-			if (intSelectedMenuScreen == 0):
-				drawWord("NEW GAME",70,130,18,18,18)
-				drawWord("LEADERS",70,180,18,18,18)
-				drawWord("QUIT",70,380,18,18,18)
+			# Draw the menu options
+			drawWord("NEW GAME",70,130,18,18,18)
+			drawWord("LEADERS",70,180,18,18,18)
+			drawWord("QUIT",70,380,18,18,18)
 
-				# Check the user input and take action
-				if (objMyGame.checkKeyStatus("DOWN") and tmrMenuSpeed.checkTimePassed(100)):
-					intSelectedItem = (intSelectedItem + 1)
-					if (intSelectedItem > 2):
-						intSelectedItem = 0
-					tmrMenuSpeed.resetTimer()
-				elif (objMyGame.checkKeyStatus("UP") and tmrMenuSpeed.checkTimePassed(100)):
-					intSelectedItem = (intSelectedItem - 1)
-					if (intSelectedItem < 0):
-						intSelectedItem = 2
-					tmrMenuSpeed.resetTimer()
+			# Check the user input and take action
+			if (objMyGame.checkKeyStatus("DOWN") and tmrMenuSpeed.checkTimePassed(100)):
+				intSelectedItem = (intSelectedItem + 1)
+				if (intSelectedItem > 2):
+					intSelectedItem = 0
+				tmrMenuSpeed.resetTimer()
 
+			elif (objMyGame.checkKeyStatus("UP") and tmrMenuSpeed.checkTimePassed(100)):
+				intSelectedItem = (intSelectedItem - 1)
+				if (intSelectedItem < 0):
+					intSelectedItem = 2
+				tmrMenuSpeed.resetTimer()
+
+			if (objMyGame.checkKeyStatus("RETURN") and tmrMenuSpeed.checkTimePassed(100)):
 				if (intSelectedItem == 0):
-					objMyGame.drawImage("imgDesign",44,120,210,40,30)
+					intGameState = 0
 				elif (intSelectedItem == 1):
-					objMyGame.drawImage("imgDesign",44,170,210,40,30)
+					break
 				elif (intSelectedItem == 2):
-					objMyGame.drawImage("imgDesign",44,370,210,40,30)
+					break
 
-				if (objMyGame.checkKeyStatus("RETURN") and tmrMenuSpeed.checkTimePassed(100)):
-					if (intSelectedItem == 0):
-						intGameState = 0
-					elif (intSelectedItem == 1):
-						break
-					elif (intSelectedItem == 2):
-						break
+			# Draw a select box based on the selected menu item
+			if (intSelectedItem == 0):
+				objMyGame.drawImage("imgDesign",44,120,210,40,30)
+			elif (intSelectedItem == 1):
+				objMyGame.drawImage("imgDesign",44,170,210,40,30)
+			elif (intSelectedItem == 2):
+				objMyGame.drawImage("imgDesign",44,370,210,40,30)
 
+			
+			# Draw the PansaCreations logo
 			objMyGame.drawImage("imgLogoPansa",270,300,20,100)
+
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		# Ready to play - wait for player to start the game by pressing space
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		case 0: # READY TO PLAY - PRESS KEY OR TOUCH /////////////////////////
 
@@ -544,14 +567,16 @@ while blnRunning:
 				tmrPressSpace.resetTimer()
 
 			if (blnShowMessage == True):
-				objMyGame.drawImage("imgStartGameLogo", 10, 170, 200, 40)
+				objMyGame.drawImage("imgStartGameLogo", 10, 170, 192, 40)
 
 			if (objMyGame.checkKeyStatus('SPACE')):
 				resetGame()
 				selectTile()
 				intGameState = 1
 
-
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		# The main game loop - the player pays the game
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		case 1: # PLAYING THE GAME ///////////////////////////////////////////
 
@@ -583,12 +608,6 @@ while blnRunning:
 				if (tmrKeyDelayUP.checkTimePassed(100)):
 					tmrKeyDelayUP.resetTimer()
 					rotateTile()
-
-
-			'''
-			#if (objMyGameEngine.checkKeyStatus("KeyE") && objMyGameEngine.checkKeyStateChanged("KeyE"))
-			#rotateShape();
-			'''
 
 			# Draw the playing area
 			drawPlayArea()

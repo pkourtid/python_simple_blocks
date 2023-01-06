@@ -9,12 +9,13 @@ import pygame
 from pygame.locals import *
 from pygame import mixer
 from pygame import freetype
+import math
 
 class clsSimpleGameEngine:
 
 	def __init__(self, strGameName, intWindowWidth, intWindowHeight, intGameWidth, intGameHeight):
 		
-		print("Initialize...")
+		print("sge> Initialize...")
 		
 		# =============================================================================
 		# Initialize pygame
@@ -52,12 +53,12 @@ class clsSimpleGameEngine:
 
 	def __del__(self):
 		
-		print("Cleaning Up...")
+		print("sge> Cleaning Up...")
 	
 		pygame.quit()
 		
 	def loadResources(self,listResources):
-		print("Loading Resources: ",end="")
+		print("sge> Loading Resources: ",end="")
 		intCountImages = 0
 		intCountSounds = 0
 
@@ -100,7 +101,10 @@ class clsSimpleGameEngine:
 
 		if (strImgObject in self.dicImages):
 
-			imgObjectResized = pygame.transform.scale(self.dicImages[strImgObject], (intWidth*self.decScaleGame,intHeight*self.decScaleGame))
+			intDimW = math.ceil(intWidth*self.decScaleGame)
+			intDimH = math.ceil(intHeight*self.decScaleGame)
+
+			imgObjectResized = pygame.transform.scale(self.dicImages[strImgObject], (intDimW,intDimH))
 
 			intOffsetWidth = 0
 			intOffsetHeight = 0
