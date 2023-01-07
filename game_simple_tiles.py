@@ -39,11 +39,10 @@ intNumLines = 0 # The number of lines the player has
 intGameScore = 0 # The current score for the player
 arrTileStats = [] # The array that holds stats about each tile
 intNextTile = 1 # Holds the next tile to fall
-intNextOffsetX = 220 # Where to place the next tile blocks
-intNextOffsetY = 243 # Where to place the next tile blocks
-intNextSize = 16 # How large should the next tile blocks be
+intNextOffsetX = 228 # Where to place the next tile blocks
+intNextOffsetY = 280 # Where to place the next tile blocks
+intNextSize = 10 # How large should the next tile blocks be
 intSelectedTile = 0 # Holds the currently falling tile
-intFallingTimer = 500 # How quickly do the tiles fall
 arrGameBoard = [] # Holds block information
 arrBoardHeight = []
 arrActiveTile = []
@@ -51,6 +50,12 @@ intLockOffset = 100 # The offset to be used to keep track of the locked blocks
 intTotalTilesPlayed = 0
 intMoveUpperBound = 200
 intNumberOfShapes = len(arrShapes)
+
+intTopSpeed = 100
+intBottomSpeed = 500
+intFallingTimer = intBottomSpeed # How quickly do the tiles fall
+intSpeedIncrease = 20 # How much should we increase the speed for each level
+intLevelIncrease = 10 # Every how many lines should we move to the next level
 
 # Create simple timers to control the game timing
 # At some point the game clock will be part of the engine
@@ -107,6 +112,13 @@ def drawPlayArea():
 	global arrShapes
 	global intNextTile
 
+	global intTopSpeed
+	global intBottomSpeed
+	global intFallingTimer
+
+	# Calculate game speed
+	intSpeed = int((100 * (intBottomSpeed - intFallingTimer)) / (intBottomSpeed - intTopSpeed))
+
 	intProjectedOffset = 1;
 
 	if (intGameState == 1):
@@ -154,14 +166,36 @@ def drawPlayArea():
 	# ::::::::::::::::::::::::::::::::::::::::::::::::::::
 	# The game information
 
+
+
+	# *******************************************
+	# Next shape display
+
+	drawWord("NEXT",220,260,12,12,12)
+	
+	objMyGame.drawImage("imgDesign",218,273,66,56,30)
+
 	if (intNextTile > -1 and intNextTile < len(arrShapes)):
         # Empty space
 		objShape = arrShapes[intNextTile]
 
-		for i in range(len(objShape["initial_placement"])):
-			objMyGame.drawImage(objShape["graphic"], (objShape["initial_placement"][i]["x"] * intNextSize) + intNextOffsetX, (objShape["initial_placement"][i]["y"] * intNextSize) + intNextOffsetY, intNextSize, intNextSize)
+		intMinNextY = 10
+		intMinNextX = 10
 
-	objMyGame.drawImage("imgLogo", 9, 10, 202, 50);
+		for i in range(len(objShape["initial_placement"])):
+			if (objShape["initial_placement"][i]["y"] < intMinNextY):
+				intMinNextY = objShape["initial_placement"][i]["y"]
+			if (objShape["initial_placement"][i]["x"] < intMinNextX):
+				intMinNextX = objShape["initial_placement"][i]["x"]
+
+		for i in range(len(objShape["initial_placement"])):
+			objMyGame.drawImage(objShape["graphic"], ((objShape["initial_placement"][i]["x"] - intMinNextX) * intNextSize) + intNextOffsetX, ((objShape["initial_placement"][i]["y"] - intMinNextY) * intNextSize) + intNextOffsetY, intNextSize, intNextSize)
+
+	# *******************************************
+	# Lines display
+
+	drawWord("LINES",220,25,12,12,12)
+	objMyGame.drawImage("imgDesign",218,38,66,18,30)
 
 	strNumLines = '00000' + str(intNumLines)
 	strNumLines = strNumLines[-6:]
@@ -169,7 +203,11 @@ def drawPlayArea():
 	for i in range(6):
 		objMyGame.drawImage("img00" + strNumLines[i], 220+(i*10), 40, 10, 12)
 
-	objMyGame.drawImage("imgDesign",218,37,66,20,30)
+	# *******************************************
+	# Score display
+	
+	drawWord("SCORE",220,75,12,12,12)
+	objMyGame.drawImage("imgDesign",218,88,66,18,30)
 
 	strGameScore = '00000' + str(intGameScore)
 	strGameScore = strGameScore[-6:]
@@ -177,30 +215,38 @@ def drawPlayArea():
 	for i in range(6):
 		objMyGame.drawImage("img00" + strGameScore[i], 220+(i*10), 90, 10, 12)
 
-	objMyGame.drawImage("imgDesign",218,87,66,20,30)
+	# *******************************************
+	# Level display
+
+	drawWord("LEVEL",220,125,12,12,12)
+	objMyGame.drawImage("imgDesign",218,138,66,18,30)
+
+	# Draw the game level
+	strGameLevel = '00000' + str(intGameLevel)
+	strGameLevel = strGameLevel[-6:]
+
+	for i in range(6):
+		objMyGame.drawImage("img00" + strGameLevel[i], 220+(i*10), 140, 10, 12)
+
+	# *******************************************
+	# Stats display
+	
+	drawWord("STATS",220,175,12,12,12)
+	
+	objMyGame.drawImage("imgDesign",218,188,66,len(arrShapes) * 8,30)
 
 	intTilePercent = 0
+	
 	if (intTotalTilesPlayed > 0):
 		for i in range(len(arrShapes)):
 			intTilePercent = 100 * (arrTileStats[i] / intTotalTilesPlayed);
 			statColor = arrShapes[i]["color"];
-			objMyGame.drawImage(arrShapes[i]["graphic"],223 ,(i*7) + 155, intTilePercent, 4)
+			objMyGame.drawImage(arrShapes[i]["graphic"],223 ,(i*7) + 193, intTilePercent, 4)
 
 
-	objMyGame.drawImage("imgDesign",218,150,66,56,30)
-	drawWord("LINES",220,25,12,12,12)
-	drawWord("SCORE",220,75,12,12,12)
-	drawWord("STATS",220,135,12,12,12)
-	drawWord("NEXT",220,220,12,12,12)
-
-	# objMyGame.drawImage("imgDown",232,400,44,40)
-	# objMyGame.drawImage("imgUp",232,330,44,40)
-	# objMyGame.drawImage("imgLeft",212,365,40,40)
-	# objMyGame.drawImage("imgRight",256,365,40,40)
-
-	objMyGame.drawImage("imgLogoPansa",210,330,20,100)
-
-
+	# Draw the PansaCreations and Game title Logo
+	objMyGame.drawImage("imgLogoPansa",208,340,20,100)
+	objMyGame.drawImage("imgLogo", 9, 10, 202, 50);
 
 # =============================================================================
 # REVIEWED : Yes
@@ -208,7 +254,7 @@ def drawPlayArea():
 def resetGame():
 
 	global arrShapes
-	global intLevel
+	global intGameLevel
 	global intBoardWidth
 	global intBoardHeight
 	global arrGameBoard
@@ -225,7 +271,7 @@ def resetGame():
 	intNextTile = randint(0, intNumberOfShapes-1)
 
 	# RESET THE LEVEL
-	intLevel = 0
+	intGameLevel = 0
 
 	# RESET DATA ON GAME BOARD
 	for i in range(intBoardWidth):
@@ -243,7 +289,7 @@ def resetGame():
 
 	intGameScore = 0
 	intNumLines = 0
-	intFallingTimer = 500
+	intFallingTimer = intBottomSpeed
 
 # =============================================================================
 # REVIEWED : Yes
@@ -323,6 +369,10 @@ def processFall():
 	global intNumLines
 	global intFallingTimer
 
+	global intLevelIncrease
+	global intSpeedIncrease
+	global intGameLevel
+
 	# Check if any active tile cannot move down
 	blnTileStopped = False;
 
@@ -372,11 +422,14 @@ def processFall():
 
 			# We found a line so we need to remove it
 			if (blnFoundLine == True):
-				
-				intFallingTimer = intFallingTimer - 20
 
 				# Keep track of the number of lines
 				intNumLines = intNumLines + 1
+
+				# Check for level and speed increase thresholds
+				if (intNumLines % intLevelIncrease == 0):
+					intFallingTimer = intFallingTimer - intSpeedIncrease
+					intGameLevel = intGameLevel + 1
 
 				# Add a multiplier for the score calculation
 				intLinesInRow = intLinesInRow + 1
