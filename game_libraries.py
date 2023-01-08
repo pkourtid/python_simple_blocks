@@ -47,6 +47,7 @@ class clsSimpleGameEngine:
 		# Container to keep resources
 		self.dicImages = {}
 		self.dicSounds = {}
+		self.dicMusic = {}
 
 		# Container for key codes
 		self.dicKeys = {}
@@ -61,6 +62,7 @@ class clsSimpleGameEngine:
 		print("sge> Loading Resources: ",end="")
 		intCountImages = 0
 		intCountSounds = 0
+		intCountMusic = 0
 
 		for resources in listResources:
 			if (resources["type"] == "image"):
@@ -69,6 +71,10 @@ class clsSimpleGameEngine:
 			elif (resources["type"] == "sound"):
 				intCountSounds = intCountSounds + 1
 				self.dicSounds[resources["name"]] = pygame.mixer.Sound(resources["src"])
+			elif (resources["type"] == "music"):
+				intCountMusic = intCountMusic + 1
+				self.dicMusic[resources["name"]] = pygame.mixer.music.load(resources["src"])
+
 		print("images (" + str(intCountImages) + ")" + ", sounds(" + str(intCountSounds) + ")")
 	# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	# When the screen is re-sized this function is triggered
@@ -93,7 +99,22 @@ class clsSimpleGameEngine:
 			self.decScaleGame = self.decScaleHeight;
 			self.decOffsetWidth = (x - (self.intGameWidth*self.decScaleGame))/2
 			self.decOffsetHeight = 0.0	
+
+	# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	# Create a function to play a previously loaded sound
+
+	def playSound(self, strSndObject):
 		
+		pygame.mixer.Sound.play(self.dicSounds[strSndObject])
+
+	# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	# Create a function to play a previously loaded music
+	
+
+	def playMusic(self):
+		
+		pygame.mixer.music.play(-1)
+
 	# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	# Create a function to draw an image on the canvas honoring the scale
 

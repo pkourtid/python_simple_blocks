@@ -25,6 +25,8 @@ objMyGame = clsSimpleGameEngine("Simple Tiles", 300, 460, 300, 460)
 # Load the resources using the object found in game_resources.py
 objMyGame.loadResources(listResources)
 
+objMyGame.playMusic()
+
 # =============================================================================
 # Game Variables
 
@@ -479,6 +481,9 @@ def processLateral(intMoveType):
 			break
 
 	if (blnLegalMove == True):
+
+		objMyGame.playSound("tile_settle")
+
 		for i in iterRange:
 			intGamePos = cotrans(i["x"],i["y"],intBoardWidth)
 			intGamePosTo = cotrans(i["x"] + intPosXMove,i["y"],intBoardWidth)
@@ -527,6 +532,9 @@ def rotateShape():
 				break
 
 		if (blnCanRotate == True):
+			
+			objMyGame.playSound("tile_rotate")
+
 			for k in range(len(arrActiveTile)):
 				arrGameBoard[cotrans(arrActiveTile[k]["x"],arrActiveTile[k]["y"],intBoardWidth)]["value"] = -1
 			for k in range(len(arrNewPositions)):
@@ -573,13 +581,19 @@ while blnRunning:
 			drawWord("QUIT",70,380,18,18,18)
 
 			# Check the user input and take action
-			if (objMyGame.checkKeyStatus("DOWN") and tmrMenuSpeed.checkTimePassed(100)):
+			if (objMyGame.checkKeyStatus("DOWN") and tmrMenuSpeed.checkTimePassed(160)):
+
+				objMyGame.playSound("tile_move")
+
 				intSelectedItem = (intSelectedItem + 1)
 				if (intSelectedItem > 2):
 					intSelectedItem = 0
 				tmrMenuSpeed.resetTimer()
 
-			elif (objMyGame.checkKeyStatus("UP") and tmrMenuSpeed.checkTimePassed(100)):
+			elif (objMyGame.checkKeyStatus("UP") and tmrMenuSpeed.checkTimePassed(160)):
+				
+				objMyGame.playSound("tile_move")
+
 				intSelectedItem = (intSelectedItem - 1)
 				if (intSelectedItem < 0):
 					intSelectedItem = 2
@@ -587,6 +601,7 @@ while blnRunning:
 
 			if (objMyGame.checkKeyStatus("RETURN") and tmrMenuSpeed.checkTimePassed(100)):
 				if (intSelectedItem == 0):
+					pygame.mixer.music.stop()
 					intGameState = 0
 				elif (intSelectedItem == 1):
 					break

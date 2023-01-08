@@ -70,6 +70,12 @@ listResources = [
 {"type": "image", "name": "chrW", "src": "resources/graphics/fonts/W.png"},
 {"type": "image", "name": "chrX", "src": "resources/graphics/fonts/X.png"},
 {"type": "image", "name": "chrY", "src": "resources/graphics/fonts/Y.png"},
-{"type": "image", "name": "chrZ", "src": "resources/graphics/fonts/Z.png"}
+{"type": "image", "name": "chrZ", "src": "resources/graphics/fonts/Z.png"},
+
+{"type": "sound", "name": "tile_move", "src": "resources/sounds/tile_move.ogg"},
+{"type": "sound", "name": "tile_rotate", "src": "resources/sounds/tile_rotate.ogg"},
+{"type": "sound", "name": "tile_settle", "src": "resources/sounds/tile_settle.ogg"},
+
+{"type": "music", "name": "tile_music", "src": "resources/sounds/tile_music.ogg"}
 
 ]
