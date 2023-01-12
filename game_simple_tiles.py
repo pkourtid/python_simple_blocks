@@ -14,6 +14,7 @@ from game_shapes import *
 from random import *
 import math
 import time
+import operator
 
 # Some needed functions
 usleep = lambda x: time.sleep(x/1000000.0)
@@ -37,6 +38,7 @@ intBlockDimensionX = round(205/intBoardWidth,0) # How large are the block parts 
 intBlockDimensionY = round(440/intBoardHeight,0) # How large are the block parts (20x20)
 intBoardXOffset = len(arrShapes)
 blnShowMessage = True # Show/hide start game message
+blnShowChar = True
 intNumLines = 0 # The number of lines the player has
 intGameScore = 0 # The current score for the player
 arrTileStats = [] # The array that holds stats about each tile
@@ -51,7 +53,10 @@ arrActiveTile = []
 intLockOffset = 100 # The offset to be used to keep track of the locked blocks
 intTotalTilesPlayed = 0
 intMoveUpperBound = 200
+strLeaderName = "AAA"
+intLeaderCharPos = 1
 intNumberOfShapes = len(arrShapes)
+strSaveData = objMyGame.loadData("data.sav")
 
 intTopSpeed = 100
 intBottomSpeed = 500
@@ -65,9 +70,12 @@ tmrPressSpace = clsSimpleTimer() # Timer for show/hide effect
 tmrTileDrop = clsSimpleTimer() # Timer that control the fall rate
 tmrForcedFall = clsSimpleTimer() # Timer to control how quickly we can force a fall
 tmrKeyDelayUP = clsSimpleTimer()
+tmrKeyDelayDOWN = clsSimpleTimer()
 tmrKeyDelayLEFT = clsSimpleTimer()
 tmrKeyDelayRIGHT = clsSimpleTimer()
+tmrKeyDelayRETURN = clsSimpleTimer()
 tmrMenuSpeed = clsSimpleTimer()
+tmrTypeName = clsSimpleTimer()
 
 # === Menu =========
 intSelectedItem = 0
@@ -82,6 +90,16 @@ for i in range(20):
 for i in range(intBoardWidth):
 	for j in range(intBoardHeight):
 		arrGameBoard.append({"x":str(i),"y":str(j),"value":-1})
+
+# Parse the scores from the save file
+lstScores = strSaveData.split("|")
+dicScores = {}
+intCountOfScores = 0
+for strScore in lstScores:
+	lstParseScore = strScore.split(":")
+	dicScores[lstParseScore[0] + str(intCountOfScores)] = int(lstParseScore[1])
+	intCountOfScores = intCountOfScores + 1
+dicSortedScores = sorted(dicScores.items(), key=operator.itemgetter(1), reverse=True)
 
 # ===========================================================================
 # Define Game Functions
@@ -348,7 +366,21 @@ def selectTile():
 		intPlayAreaPosY = arrShapes[intSelectedTile]["initial_placement"][i]["y"]
 
 		if (arrGameBoard[cotrans(intPlayAreaPosX,intPlayAreaPosY,intBoardWidth)]["value"] != -1):
-			intGameState = 0
+			
+			# The game is over, let's check the score
+			blnNewLeaderScore = False
+			intCountScoreRecs = 1
+			for strSortedScoreKey in dicSortedScores:
+				if (intCountScoreRecs > 6):
+					break
+				if(strSortedScoreKey[1] < intGameScore):
+					blnNewLeaderScore = True
+					break;
+			
+			if (blnNewLeaderScore == True):
+				intGameState = 3
+			else:
+				intGameState = 0
 			break
 		else:
 			arrGameBoard[cotrans(intPlayAreaPosX,intPlayAreaPosY,intBoardWidth)]["value"] = intSelectedTile
@@ -599,12 +631,13 @@ while blnRunning:
 					intSelectedItem = 2
 				tmrMenuSpeed.resetTimer()
 
-			if (objMyGame.checkKeyStatus("RETURN") and tmrMenuSpeed.checkTimePassed(100)):
+			if (objMyGame.checkKeyStatus("RETURN") and tmrKeyDelayRETURN.checkTimePassed(1000)):
+				tmrKeyDelayRETURN.resetTimer()
 				if (intSelectedItem == 0):
 					pygame.mixer.music.stop()
 					intGameState = 0
 				elif (intSelectedItem == 1):
-					break
+					intGameState = 4
 				elif (intSelectedItem == 2):
 					break
 
@@ -643,7 +676,7 @@ while blnRunning:
 				intGameState = 1
 
 		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		# The main game loop - the player pays the game
+		# The main game loop - the player plays the game
 		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		case 1: # PLAYING THE GAME ///////////////////////////////////////////
@@ -679,6 +712,110 @@ while blnRunning:
 
 			# Draw the playing area
 			drawPlayArea()
+
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		# Enter the leader name
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		case 3:
+			# Draw the game title
+			objMyGame.drawImage("imgLogo", 9, 10, 278, 60)
+
+			# Draw a couple of backgrounds
+			objMyGame.drawRect(12, 90, 270, 360, (20,20,20))
+			objMyGame.drawRect(30, 108, 236, 320, (0,0,0))
+
+			drawWord("LEADER",70,130,20,20,20)
+
+			if ((blnShowChar and tmrTypeName.checkTimePassed(300)) or (not blnShowChar and tmrTypeName.checkTimePassed(100))):
+				blnShowChar = not blnShowChar
+				tmrTypeName.resetTimer()
+
+			if (blnShowChar == True):
+				drawWord("8",70 + (20 * (intLeaderCharPos - 1)),192,20,4,20)
+			drawWord(strLeaderName,70,170,20,20,20)
+
+			if (objMyGame.checkKeyStatus("RIGHT")):
+				if (tmrKeyDelayRIGHT.checkTimePassed(100)):
+					tmrKeyDelayRIGHT.resetTimer()
+					intLeaderCharPos = intLeaderCharPos + 1
+					if (intLeaderCharPos > 3):
+						intLeaderCharPos = 1
+			elif (objMyGame.checkKeyStatus("LEFT")):
+				if (tmrKeyDelayLEFT.checkTimePassed(100)):
+					tmrKeyDelayLEFT.resetTimer()
+					intLeaderCharPos = intLeaderCharPos - 1
+					if (intLeaderCharPos < 1):
+						intLeaderCharPos = 3
+			elif (objMyGame.checkKeyStatus("UP")):
+				if (tmrKeyDelayUP.checkTimePassed(100)):
+					tmrKeyDelayUP.resetTimer()
+					lstLeaderNameChars = list(strLeaderName)
+					if (lstLeaderNameChars[intLeaderCharPos-1] == "X"):
+						lstLeaderNameChars[intLeaderCharPos-1] = "A"
+					else:
+						lstLeaderNameChars[intLeaderCharPos-1] = chr(ord(strLeaderName[intLeaderCharPos-1]) + 1)
+					strLeaderName = "".join(lstLeaderNameChars)
+			elif (objMyGame.checkKeyStatus("DOWN")):
+				if (tmrKeyDelayUP.checkTimePassed(100)):
+					tmrKeyDelayUP.resetTimer()
+					lstLeaderNameChars = list(strLeaderName)
+					if (lstLeaderNameChars[intLeaderCharPos-1] == "A"):
+						lstLeaderNameChars[intLeaderCharPos-1] = "X"
+					else:
+						lstLeaderNameChars[intLeaderCharPos-1] = chr(ord(strLeaderName[intLeaderCharPos-1]) - 1)
+					strLeaderName = "".join(lstLeaderNameChars)
+
+			elif (objMyGame.checkKeyStatus("RETURN")):
+				if (tmrKeyDelayRETURN.checkTimePassed(5000)):
+					tmrKeyDelayRETURN.resetTimer()
+					dicScores[strLeaderName] = intGameScore
+					dicSortedScores.clear()
+					dicSortedScores = sorted(dicScores.items(), key=operator.itemgetter(1), reverse=True)
+					strSaveData = ""
+					intCountScoreRecs = 1
+					for strSortedScoreKey in dicSortedScores:
+						if (intCountScoreRecs > 1):
+							strSaveData = strSaveData + "|"
+						strSaveData = strSaveData + str(strSortedScoreKey[0][:3]) + ":" + str(strSortedScoreKey[1])
+						intCountScoreRecs = intCountScoreRecs +1
+						if (intCountScoreRecs > 6):
+							break
+					objMyGame.saveData(strSaveData,"data.sav")
+					intGameState = 4
+
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		# The higscores for the game
+		# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		case 4: 
+
+			# Draw the game title
+			objMyGame.drawImage("imgLogo", 9, 10, 278, 60)
+
+			# Draw a couple of backgrounds
+			objMyGame.drawRect(12, 90, 270, 360, (20,20,20))
+			objMyGame.drawRect(30, 108, 236, 320, (0,0,0))
+
+			drawWord("LEADERS",70,130,20,20,20)
+			objMyGame.drawImage("imgDesign",44,172,210,154,60)
+
+			intScoresOffset = 0
+			
+			for strSortedScoreKey in dicSortedScores:
+				drawWord(str(strSortedScoreKey[0][:3]),76,180 + (intScoresOffset * 25),12,12,12)
+				drawWord(str(strSortedScoreKey[1]),120,180 + (intScoresOffset * 25),12,12,12)
+				intScoresOffset = intScoresOffset + 1
+				if (intScoresOffset > 5):
+					break
+
+			
+
+			drawWord("BACK",70,380,18,18,18)
+			objMyGame.drawImage("imgDesign",44,370,210,40,30)
+
+			if (objMyGame.checkKeyStatus("RETURN")):
+				if (tmrKeyDelayRETURN.checkTimePassed(1000)):
+					tmrKeyDelayRETURN.resetTimer()
+					intGameState = -1
 
 	blnRunning = objMyGame.processEvents()
 	

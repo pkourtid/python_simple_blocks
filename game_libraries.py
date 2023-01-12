@@ -1,7 +1,5 @@
 # Written by Panagiotis Kourtidis
 
-from functools import partial
-
 # =============================================================================
 # Import pygame libraries
 
@@ -10,6 +8,8 @@ from pygame.locals import *
 from pygame import mixer
 from pygame import freetype
 import math
+import base64
+import os
 
 class clsSimpleGameEngine:
 
@@ -167,6 +167,29 @@ class clsSimpleGameEngine:
 	def checkKeyStatus(self, keyCode):
 		if (keyCode in self.dicKeys):
 			return self.dicKeys[keyCode]
+
+	def saveData(self,strData,strFilePath):
+		bytesData = strData.encode("ascii")
+		base64Data = base64.b64encode(bytesData)
+		base64String = base64Data.decode("ascii")
+		hdlFile = open(strFilePath, "w")
+		hdlFile.write(base64String)
+		hdlFile.close()
+
+	def loadData(self,strFilePath):
+		#check if file is present
+		if os.path.isfile(strFilePath):
+			
+			hdlFile = open(strFilePath, "r")
+			base64Data = hdlFile.read()
+			hdlFile.close()
+			bytesData = base64Data.encode("ascii")
+
+			base64String = base64.b64decode(bytesData)
+			strData = base64String.decode("ascii")
+
+			return strData
+		return ""
 
 	def drawRect(self, intX1, intY1, intX2, intY2, lstRGBValue):
 		# Initialing Color
