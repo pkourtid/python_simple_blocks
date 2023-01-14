@@ -139,7 +139,7 @@ def drawPlayArea():
 	# Calculate game speed
 	intSpeed = int((100 * (intBottomSpeed - intFallingTimer)) / (intBottomSpeed - intTopSpeed))
 
-	intProjectedOffset = 1;
+	intProjectedOffset = 1
 
 	if (intGameState == 1):
 		for m in range(intBoardHeight):
@@ -259,14 +259,14 @@ def drawPlayArea():
 	
 	if (intTotalTilesPlayed > 0):
 		for i in range(len(arrShapes)):
-			intTilePercent = 100 * (arrTileStats[i] / intTotalTilesPlayed);
-			statColor = arrShapes[i]["color"];
+			intTilePercent = 100 * (arrTileStats[i] / intTotalTilesPlayed)
+			statColor = arrShapes[i]["color"]
 			objMyGame.drawImage(arrShapes[i]["graphic"],223 ,(i*7) + 193, intTilePercent, 4)
 
 
 	# Draw the PansaCreations and Game title Logo
 	objMyGame.drawImage("imgLogoPansa",208,340,20,100)
-	objMyGame.drawImage("imgLogo", 6, 6, 202, 54);
+	objMyGame.drawImage("imgLogo", 6, 6, 202, 54)
 
 # =============================================================================
 # REVIEWED : Yes
@@ -350,7 +350,7 @@ def selectTile():
 	intShapeOriginY = 0
 
 	# Set the current block and select the next
-	intSelectedTile = intNextTile;
+	intSelectedTile = intNextTile
 	intNextTile = randint(0, len(arrShapes) - 1)
 
 	# Keep some stats about the tiles
@@ -358,7 +358,7 @@ def selectTile():
 	intTotalTilesPlayed = intTotalTilesPlayed + 1
 
 	# Initialize the block on the playing area
-	# console.log(intSelectedTile);
+	# console.log(intSelectedTile)
 	objShape = arrShapes[intSelectedTile]
 
 	for i in range(len(arrShapes[intSelectedTile]["initial_placement"])):
@@ -375,7 +375,7 @@ def selectTile():
 					break
 				if(strSortedScoreKey[1] < intGameScore):
 					blnNewLeaderScore = True
-					break;
+					break
 			
 			if (blnNewLeaderScore == True):
 				intGameState = 3
@@ -408,13 +408,13 @@ def processFall():
 	global intGameLevel
 
 	# Check if any active tile cannot move down
-	blnTileStopped = False;
+	blnTileStopped = False
 
 	for i in range(intBoardWidth):
 		for j in range(intBoardHeight):
 			if (arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] > -1 and arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] < intNumberOfShapes):
 				if (j > intBoardHeight - 2):
-					blnTileStopped = True;
+					blnTileStopped = True
 				elif (arrGameBoard[cotrans(i,j+1,intBoardWidth)]["value"] > 9):
 					blnTileStopped = True
 
@@ -448,7 +448,7 @@ def processFall():
 		# Check for lines made and remove them
 		intLinesInRow = 0
 		for j in range(intBoardHeight):
-			blnFoundLine = True;
+			blnFoundLine = True
 			for i in range(intBoardWidth):
 				if (arrGameBoard[cotrans(i,j,intBoardWidth)]["value"] == -1):
 					blnFoundLine = False
@@ -558,7 +558,7 @@ def rotateShape():
 				break
 
 			if (arrGameBoard[cotrans(rotated_pos_x,rotated_pos_y,intBoardWidth)]["value"] == -1 or arrGameBoard[cotrans(rotated_pos_x,rotated_pos_y,intBoardWidth)]["value"] == intSelectedTile):
-				arrNewPositions.append({"x":rotated_pos_x,"y":rotated_pos_y});
+				arrNewPositions.append({"x":rotated_pos_x,"y":rotated_pos_y})
 			else:
 				blnCanRotate = False
 				break
@@ -660,7 +660,7 @@ while blnRunning:
 		case 0: # READY TO PLAY - PRESS KEY OR TOUCH /////////////////////////
 
 			# Draw the main SimpleBlocks play area
-			drawPlayArea();
+			drawPlayArea()
 
 			# Logic to show/hide the start game message
 			if ((blnShowMessage and tmrPressSpace.checkTimePassed(800)) or (not blnShowMessage and tmrPressSpace.checkTimePassed(300))):
