@@ -155,7 +155,7 @@ def drawPlayArea():
 				intProjectedOffset =  intProjectedOffset - 1
 				break
 
-	objMyGame.drawRect(6, 6, 203, 443, (0,0,0))
+	objMyGame.drawRect(5, 6, 204, 443, (0,0,0))
 
 	# ==============================================================
 	# Scan the playing area and draw the appropriate
@@ -266,7 +266,7 @@ def drawPlayArea():
 
 	# Draw the PansaCreations and Game title Logo
 	objMyGame.drawImage("imgLogoPansa",208,340,20,100)
-	objMyGame.drawImage("imgLogo", 9, 10, 202, 50);
+	objMyGame.drawImage("imgLogo", 6, 6, 202, 54);
 
 # =============================================================================
 # REVIEWED : Yes
