@@ -10,8 +10,14 @@ from pygame import freetype
 import math
 import base64
 import os
+import sys
 
 class clsSimpleGameEngine:
+
+	def resource_path(self, relative_path):
+		base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+		return os.path.join(base_path, relative_path)
+
 
 	def __init__(self, strGameName, intWindowWidth, intWindowHeight, intGameWidth, intGameHeight):
 		
@@ -67,13 +73,13 @@ class clsSimpleGameEngine:
 		for resources in listResources:
 			if (resources["type"] == "image"):
 				intCountImages = intCountImages + 1
-				self.dicImages[resources["name"]] = pygame.image.load(resources["src"])
+				self.dicImages[resources["name"]] = pygame.image.load(self.resource_path(resources["src"]))
 			elif (resources["type"] == "sound"):
 				intCountSounds = intCountSounds + 1
-				self.dicSounds[resources["name"]] = pygame.mixer.Sound(resources["src"])
+				self.dicSounds[resources["name"]] = pygame.mixer.Sound(self.resource_path(resources["src"]))
 			elif (resources["type"] == "music"):
 				intCountMusic = intCountMusic + 1
-				self.dicMusic[resources["name"]] = pygame.mixer.music.load(resources["src"])
+				self.dicMusic[resources["name"]] = pygame.mixer.music.load(self.resource_path(resources["src"]))
 
 		print("images (" + str(intCountImages) + ")" + ", sounds(" + str(intCountSounds) + ")")
 	# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
