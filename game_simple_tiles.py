@@ -1,12 +1,12 @@
 # Written by Panagiotis Kourtidis
+# To Learn Python
 
 # =============================================================================
 # Import Simple Game Engine Libraries
 from game_libraries import *
 
 # Import game resources and shapes
-# You can use the shapes module to modify and/or add additonal shapes to
-# the game
+# You can use the shapes module to modify and/or add additonal shapes to the game
 from game_resources import *
 from game_shapes import *
 
@@ -21,7 +21,7 @@ usleep = lambda x: time.sleep(x/1000000.0)
 cotrans = lambda x,y,w: x + (w*y)
 
 # Start the Simple Game Engine
-objMyGame = clsSimpleGameEngine("Simple Tiles", 300, 460, 300, 460)
+objMyGame = clsSimpleGameEngine("Simple Tiles", 600, 920, 300, 460)
 
 # Load the resources using the object found in game_resources.py
 objMyGame.loadResources(listResources)
@@ -193,7 +193,7 @@ def drawPlayArea():
 
 	drawWord("NEXT",220,260,12,12,12)
 	
-	objMyGame.drawImage("imgDesign",218,273,66,56,30)
+	objMyGame.drawImage("imgDesign",218,273,66,56,100)
 
 	if (intNextTile > -1 and intNextTile < len(arrShapes)):
         # Empty space
@@ -215,7 +215,7 @@ def drawPlayArea():
 	# Lines display
 
 	drawWord("LINES",220,25,12,12,12)
-	objMyGame.drawImage("imgDesign",218,38,66,18,30)
+	objMyGame.drawImage("imgDesign",218,38,66,18,100)
 
 	strNumLines = '00000' + str(intNumLines)
 	strNumLines = strNumLines[-6:]
@@ -224,10 +224,24 @@ def drawPlayArea():
 		objMyGame.drawImage("img00" + strNumLines[i], 220+(i*10), 40, 10, 12)
 
 	# *******************************************
+	# Speed display
+
+	drawWord("FRATE",220,350,12,12,12)
+	objMyGame.drawImage("imgDesign",218,363,66,18,100)
+
+	strNumSpeed = '00000' + str(intFallingTimer)
+	strNumSpeed = strNumSpeed[-6:]
+
+	for i in range(6):
+		objMyGame.drawImage("img00" + strNumSpeed[i], 220+(i*10), 365, 10, 12)
+
+
+
+	# *******************************************
 	# Score display
 	
 	drawWord("SCORE",220,75,12,12,12)
-	objMyGame.drawImage("imgDesign",218,88,66,18,30)
+	objMyGame.drawImage("imgDesign",218,88,66,18,100)
 
 	strGameScore = '00000' + str(intGameScore)
 	strGameScore = strGameScore[-6:]
@@ -239,7 +253,7 @@ def drawPlayArea():
 	# Level display
 
 	drawWord("LEVEL",220,125,12,12,12)
-	objMyGame.drawImage("imgDesign",218,138,66,18,30)
+	objMyGame.drawImage("imgDesign",218,138,66,18,100)
 
 	# Draw the game level
 	strGameLevel = '00000' + str(intGameLevel)
@@ -253,7 +267,7 @@ def drawPlayArea():
 	
 	drawWord("STATS",220,175,12,12,12)
 	
-	objMyGame.drawImage("imgDesign",218,188,66,len(arrShapes) * 8,30)
+	objMyGame.drawImage("imgDesign",218,188,66,len(arrShapes) * 8,100)
 
 	intTilePercent = 0
 	
@@ -261,11 +275,11 @@ def drawPlayArea():
 		for i in range(len(arrShapes)):
 			intTilePercent = 100 * (arrTileStats[i] / intTotalTilesPlayed)
 			statColor = arrShapes[i]["color"]
-			objMyGame.drawImage(arrShapes[i]["graphic"],223 ,(i*7) + 193, intTilePercent, 4)
+			objMyGame.drawImage(arrShapes[i]["graphicp"],223 ,(i*7) + 193, intTilePercent, 4)
 
 
 	# Draw the PansaCreations and Game title Logo
-	objMyGame.drawImage("imgLogoPansa",208,340,20,100)
+	objMyGame.drawImage("imgLogoPansa",208,390,10,50)
 	objMyGame.drawImage("imgLogo", 6, 6, 202, 54)
 
 # =============================================================================
@@ -643,11 +657,11 @@ while blnRunning:
 
 			# Draw a select box based on the selected menu item
 			if (intSelectedItem == 0):
-				objMyGame.drawImage("imgDesign",44,120,210,40,30)
+				objMyGame.drawImage("imgPer0",44,120,210,40,30)
 			elif (intSelectedItem == 1):
-				objMyGame.drawImage("imgDesign",44,170,210,40,30)
+				objMyGame.drawImage("imgPer0",44,170,210,40,30)
 			elif (intSelectedItem == 2):
-				objMyGame.drawImage("imgDesign",44,370,210,40,30)
+				objMyGame.drawImage("imgPer0",44,370,210,40,30)
 
 			
 			# Draw the PansaCreations logo
@@ -796,7 +810,7 @@ while blnRunning:
 			objMyGame.drawRect(30, 108, 236, 320, (0,0,0))
 
 			drawWord("LEADERS",70,130,20,20,20)
-			objMyGame.drawImage("imgDesign",44,172,210,154,60)
+			objMyGame.drawImage("imgPer0",44,172,210,154,60)
 
 			intScoresOffset = 0
 			
@@ -810,7 +824,7 @@ while blnRunning:
 			
 
 			drawWord("BACK",70,380,18,18,18)
-			objMyGame.drawImage("imgDesign",44,370,210,40,30)
+			objMyGame.drawImage("imgPer0",44,370,210,40,30)
 
 			if (objMyGame.checkKeyStatus("RETURN")):
 				if (tmrKeyDelayRETURN.checkTimePassed(1000)):

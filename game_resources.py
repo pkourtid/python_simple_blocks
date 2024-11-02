@@ -23,6 +23,14 @@ listResources = [
 {"type": "image", "name": "imgBlock5", "src": "resources/block_5.png"},
 {"type": "image", "name": "imgBlock6", "src": "resources/block_6.png"},
 
+{"type": "image", "name": "imgPer0", "src": "resources/blockp_0.png"},
+{"type": "image", "name": "imgPer1", "src": "resources/blockp_1.png"},
+{"type": "image", "name": "imgPer2", "src": "resources/blockp_2.png"},
+{"type": "image", "name": "imgPer3", "src": "resources/blockp_3.png"},
+{"type": "image", "name": "imgPer4", "src": "resources/blockp_4.png"},
+{"type": "image", "name": "imgPer5", "src": "resources/blockp_5.png"},
+{"type": "image", "name": "imgPer6", "src": "resources/blockp_6.png"},
+
 {"type": "image", "name": "img000", "src": "resources/000.png"},
 {"type": "image", "name": "img001", "src": "resources/001.png"},
 {"type": "image", "name": "img002", "src": "resources/002.png"},
